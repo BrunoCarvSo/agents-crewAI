@@ -1,0 +1,15 @@
+[Transcrição de Reunião - Levantamento de Requisitos Sistema MeuPet]
+
+Dono do Petshop: Oi, tudo bem? Então, nosso petshop cresceu e a agenda de papel não dá mais conta. A prioridade um é ter um módulo de agendamento de banho e tosa. O sistema precisa ter uma agenda visual, tipo um calendário, onde minha equipe clica e bloqueia o horário.
+Desenvolvedor: Certo, uma agenda visual. E como funciona a comunicação com o cliente hoje?
+Dono do Petshop: É tudo manual e a gente perde muito tempo. O sistema novo tem que enviar lembretes automáticos via WhatsApp um dia antes do banho marcado. Além disso, quero que o sistema envie alertas de vacina também pelo WhatsApp, porque os tutores sempre esquecem as datas.
+Desenvolvedor: Anotado. Integração com WhatsApp para lembretes de banho e ciclo de vacinas. E a parte da lojinha física, como fica?
+Dono do Petshop: Preciso de um controle de estoque inteligente. Quando a ração ou qualquer produto chegar a menos de 5 unidades, o sistema tem que exibir um alerta vermelho gigante na tela inicial do caixa.
+Desenvolvedor: Beleza, alerta de estoque baixo com threshold de 5 unidades. Vocês pensam em fazer algo para fidelizar o cliente?
+Dono do Petshop: Com certeza. Quero um programa de fidelidade. A regra é: a cada 10 reais gastos na loja ou no banho, o cliente ganha 1 ponto. Quando ele juntar bastante ponto, ele troca por um banho grátis.
+Desenvolvedor: Perfeito. E quantos pontos exatamente ele precisa para resgatar esse banho grátis?
+Dono do Petshop: Ah, não sei ainda, a gente define a quantidade exata depois com o financeiro. Outra coisa muito legal que eu queria: o cliente deveria ter um aplicativo no celular dele onde ele consegue abrir a câmera ao vivo e ver o cachorrinho dele tomando banho lá dentro.
+Desenvolvedor: Entendi, então teremos um app mobile para o cliente com integração de streaming de câmeras IP. É uma feature avançada, mas colocamos no escopo.
+Dono do Petshop: Maravilha! Ah, e seria incrível se o sistema já pegasse a foto do cachorro pronto e postasse automaticamente no nosso Instagram oficial com uma legenda fofa, né?
+Desenvolvedor: Dá para fazer usando a API do Instagram, mas vai aumentar bem o tempo de desenvolvimento.
+Dono do Petshop: É, pensando bem, esquece o Instagram por agora. Vamos deixar isso totalmente de fora, só para uma Fase 2 no ano que vem. Foca só no app da câmera e no resto.
