@@ -1,15 +1,29 @@
-[Transcrição de Reunião - Levantamento de Requisitos Sistema MeuPet]
+The functionality of the Educational Trail Builder application is focused on providing value to educators and computer science students, facilitating the creation, execution, and monitoring of logical learning trails.
 
-Dono do Petshop: Oi, tudo bem? Então, nosso petshop cresceu e a agenda de papel não dá mais conta. A prioridade um é ter um módulo de agendamento de banho e tosa. O sistema precisa ter uma agenda visual, tipo um calendário, onde minha equipe clica e bloqueia o horário.
-Desenvolvedor: Certo, uma agenda visual. E como funciona a comunicação com o cliente hoje?
-Dono do Petshop: É tudo manual e a gente perde muito tempo. O sistema novo tem que enviar lembretes automáticos via WhatsApp um dia antes do banho marcado. Além disso, quero que o sistema envie alertas de vacina também pelo WhatsApp, porque os tutores sempre esquecem as datas.
-Desenvolvedor: Anotado. Integração com WhatsApp para lembretes de banho e ciclo de vacinas. E a parte da lojinha física, como fica?
-Dono do Petshop: Preciso de um controle de estoque inteligente. Quando a ração ou qualquer produto chegar a menos de 5 unidades, o sistema tem que exibir um alerta vermelho gigante na tela inicial do caixa.
-Desenvolvedor: Beleza, alerta de estoque baixo com threshold de 5 unidades. Vocês pensam em fazer algo para fidelizar o cliente?
-Dono do Petshop: Com certeza. Quero um programa de fidelidade. A regra é: a cada 10 reais gastos na loja ou no banho, o cliente ganha 1 ponto. Quando ele juntar bastante ponto, ele troca por um banho grátis.
-Desenvolvedor: Perfeito. E quantos pontos exatamente ele precisa para resgatar esse banho grátis?
-Dono do Petshop: Ah, não sei ainda, a gente define a quantidade exata depois com o financeiro. Outra coisa muito legal que eu queria: o cliente deveria ter um aplicativo no celular dele onde ele consegue abrir a câmera ao vivo e ver o cachorrinho dele tomando banho lá dentro.
-Desenvolvedor: Entendi, então teremos um app mobile para o cliente com integração de streaming de câmeras IP. É uma feature avançada, mas colocamos no escopo.
-Dono do Petshop: Maravilha! Ah, e seria incrível se o sistema já pegasse a foto do cachorro pronto e postasse automaticamente no nosso Instagram oficial com uma legenda fofa, né?
-Desenvolvedor: Dá para fazer usando a API do Instagram, mas vai aumentar bem o tempo de desenvolvimento.
-Dono do Petshop: É, pensando bem, esquece o Instagram por agora. Vamos deixar isso totalmente de fora, só para uma Fase 2 no ano que vem. Foca só no app da câmera e no resto.
+Trail Creation
+Educators can design custom learning trails to teach concepts like computational abstraction and object-oriented programming. The Trail Creation module acts as an interface where teachers can define modules, add sequential steps, and structure the learning path before publishing it to the student base.
+
+Student Enrollment and Navigation
+After a trail is published, students can browse and enroll. The Navigation module ensures students follow the pedagogical sequence strictly, preventing them from skipping foundational steps. It acts as the primary interface for students to consume content and mark their progress.
+
+Progress Tracking
+The Progress Tracking module calculates and monitors student advancement in real-time. It provides educators with automated metrics and standard contract responses regarding how far along a student is in a specific trail, ensuring interventions can be made if a student stalls.
+
+The system should be designed with the following functional and architectural requirements:
+
+1) The system must allow the creation of a learning trail using a unique alphanumeric identifier.
+2) A trail cannot be transitioned to the "Published" status if it contains zero modules.
+3) Each educational module within a trail must have a strict maximum limit of 10 sequential steps.
+4) The domain logic must enforce that no two published trails share the exact same title.
+5) All data persistence must occur exclusively in a volatile In-Memory Repository during the active application session, without connecting to external databases like PostgreSQL.
+6) The system must restrict a student's enrollment to a maximum of 3 active trails simultaneously to ensure focus.
+7) Upon the successful completion of a step, the system must automatically recalculate and update the student's overall trail progress percentage.
+8) The system must enforce sequential learning; step N can only be unlocked and accessed if step N-1 is explicitly marked as completed by the student.
+9) The system must automatically calculate the total estimated completion time of a trail by summing the individual estimated times of all its active steps.
+10) An educator must be able to soft-delete a published trail. A soft-deleted trail becomes invisible for new enrollments but remains fully accessible for students who are already enrolled.
+11) The authentication service must enforce a security lockout, freezing a user account after 3 consecutive failed login attempts.
+12) The system must be capable of generating a student progress report strictly formatted as a JSON contract when requested by the educator.
+13) If a student remains inactive (no steps completed) in an enrolled trail for 30 consecutive days, their enrollment status must automatically change from "Active" to "Suspended".
+14) The domain validation must prevent the deletion of any module from a trail if there is at least one student currently enrolled in that trail.
+15) For any domain rule violation (e.g., trying to add an 11th step), the application must return a standardized error contract containing an "ErrorCode" and an "ErrorMessage".
+16) Every trail must be categorized upon creation using at least one predefined educational tag.
