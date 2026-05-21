@@ -1,46 +1,94 @@
-# Documento de Requisitos: Sistema MeuPet
+# Documentação de Requisitos: Educational Trail Builder
 
-## 1. Módulo de Agendamento
-**User Story:** Como funcionário do petshop, desejo visualizar um calendário de horários para agendar banhos e tosas, garantindo a organização dos serviços.
+Este documento consolida as especificações técnicas, regras de negócio e requisitos funcionais do sistema, estruturado para conformidade total com os critérios de aceite e auditoria de QA.
 
-*   **Cenário 1: Bloqueio de horário na agenda**
-    *   **Dado** que estou na tela de visualização do calendário
-    *   **Quando** seleciono um horário disponível e preencho os dados do pet e do serviço
-    *   **Então** o sistema deve bloquear o horário selecionado e exibir o agendamento visualmente no calendário.
+---
 
-## 2. Comunicação e Lembretes
-**User Story:** Como dono do petshop, desejo que o sistema envie lembretes automáticos via WhatsApp, para reduzir faltas e manter os pets com a vacinação em dia.
+## 1. Módulos do Sistema
+*   **Trail Creation:** Gestão de módulos, passos e publicação.
+*   **Navigation:** Controle de fluxo, progressão e validação de bloqueios.
+*   **Progress Tracking:** Monitoramento em tempo real e geração de relatórios.
 
-*   **Cenário 1: Envio de lembrete de agendamento**
-    *   **Dado** que existe um agendamento confirmado para o dia seguinte
-    *   **Quando** o sistema processar a rotina de envio de mensagens diárias (agendada para as 08:00)
-    *   **Então** o sistema deve disparar um lembrete via API de WhatsApp para o número cadastrado do cliente.
-*   **Cenário 2: Alerta de vacinação**
-    *   **Dado** que o prazo de vencimento da vacina do pet está a menos de 3 dias
-    *   **Quando** a rotina de verificação diária for executada
-    *   **Então** o sistema deve enviar um alerta automático de vacinação via WhatsApp para o tutor responsável.
+---
 
-## 3. Controle de Estoque
-**User Story:** Como operador de caixa, desejo ser alertado visualmente quando um produto atingir o estoque mínimo, para evitar a ruptura de vendas.
+## 2. Requisitos Funcionais (RF) e Regras de Negócio (RN)
 
-*   **Cenário 1: Gatilho de alerta de estoque crítico**
-    *   **Dado** que um produto possui estoque igual ou inferior a 5 unidades
-    *   **Quando** o operador acessar a tela inicial do PDV (Ponto de Venda)
-    *   **Então** o sistema deve exibir um alerta visual na cor vermelha, listando os itens com baixo estoque.
+### 2.1 Gestão de Trilhas e Pedagógica
+*   **RF01:** Criação de trilhas com identificador alfanumérico único.
+*   **RF02:** Obrigatoriedade de pelo menos uma tag educacional na criação.
+*   **RF03:** Cálculo de tempo total (soma de tempos individuais dos passos).
+*   **RF04:** Limite máximo de 10 passos por módulo.
+*   **RN01:** Proibida publicação de trilhas com 0 módulos.
+*   **RN02:** Unicidade de título obrigatória para trilhas publicadas.
+*   **RN03:** Proibida exclusão de módulos se houver alunos inscritos.
 
-## 4. Programa de Fidelidade
-**User Story:** Como cliente do petshop, desejo acumular pontos a cada compra, para futuramente trocar por serviços de banho.
+### 2.2 Navegação e Progresso
+*   **RF05:** Acesso ao passo N condicionado à conclusão do passo N-1.
+*   **RF06:** Recálculo automático da porcentagem de progresso por passo concluído.
+*   **RN04:** Limite de 3 trilhas ativas simultâneas por aluno.
 
-*   **Cenário 1: Acúmulo de pontos**
-    *   **Dado** que o cliente realizou uma compra válida
-    *   **Quando** a transação financeira for concluída com sucesso
-    *   **Então** o sistema deve calcular e adicionar pontos ao saldo do cliente na proporção de 1 ponto a cada R$ 10,00 gastos.
-*   **Nota Técnica de Implementação:** O parâmetro de resgate (quantidade de pontos necessária para trocar por um serviço de banho) está pendente de definição estratégica pelo departamento financeiro. A lógica de conversão deve ser implementada via variável configurável no *back-end* para permitir atualização posterior sem necessidade de *redeploy* ou alteração de código.
+### 2.3 Monitoramento e Administração
+*   **RF07:** Geração de relatórios de progresso em formato JSON.
+*   **RF08:** Bloqueio de conta após 3 tentativas de login falhas.
+*   **RF09:** Soft-delete de trilhas publicadas.
+*   **RN05:** Alteração de status para "Suspended" após 30 dias de inatividade.
 
-## 5. Aplicativo Móvel (Câmera ao Vivo)
-**User Story:** Como cliente, desejo acessar uma câmera ao vivo do meu pet durante o banho, para acompanhar o atendimento em tempo real.
+---
 
-*   **Cenário 1: Acesso ao streaming da câmera**
-    *   **Dado** que o pet está sob atendimento e o status do serviço é "Em execução"
-    *   **Quando** o cliente acessar o aplicativo e selecionar a aba "Acompanhamento em Tempo Real"
-    *   **Então** o sistema deve realizar o *handshake* com o serviço de streaming e exibir a transmissão ao vivo da câmera vinculada à baia de banho.
+## 3. Requisitos Não-Funcionais (RNF)
+
+*   **RNF01 (Persistência):** Repositório In-Memory volátil (Proibido uso de bancos externos).
+*   **RNF02 (Padronização Global de Erros):** **Qualquer** violação de Regra de Negócio deve retornar obrigatoriamente:
+    ```json
+    {
+      "ErrorCode": "string",
+      "ErrorMessage": "string"
+    }
+    ```
+*   **RNF03 (Contrato de Saída):** Relatórios de progresso devem manter conformidade estrita com o contrato JSON definido.
+
+---
+
+## 4. Cenários BDD (Cobertura Total)
+
+### US01: Criação e Gestão
+*   **Cenário:** Publicação de trilha sem módulos
+    *   **Dado** que a trilha está vazia
+    *   **Quando** o educador solicitar a publicação
+    *   **Então** o sistema deve retornar erro com código e mensagem padrão
+*   **Cenário:** Criação de trilha com título já existente
+    *   **Dado** que já existe uma trilha pública com o título "Java Básico"
+    *   **Quando** o educador tentar publicar uma nova trilha com o título "Java Básico"
+    *   **Então** o sistema deve retornar erro com código e mensagem padrão
+
+### US02: Estruturação Pedagógica
+*   **Cenário:** Exceder limite de passos em um módulo
+    *   **Dado** que um módulo possui 10 passos
+    *   **Quando** o educador tentar adicionar o 11º passo
+    *   **Então** o sistema deve retornar erro com código e mensagem padrão
+*   **Cenário:** Excluir módulo com aluno inscrito
+    *   **Dado** que existe pelo menos um aluno inscrito na trilha
+    *   **Quando** o educador tentar excluir um módulo da trilha
+    *   **Então** o sistema deve retornar erro com código e mensagem padrão
+
+### US03: Navegação e Progressão
+*   **Cenário:** Acesso a passo bloqueado
+    *   **Dado** que o aluno não concluiu o passo N-1
+    *   **Quando** o aluno tentar acessar o passo N
+    *   **Então** o sistema deve retornar erro com código e mensagem padrão
+*   **Cenário:** Matrícula acima do limite permitido
+    *   **Dado** que o aluno já possui 3 trilhas com status "Active"
+    *   **Quando** o aluno tentar se inscrever em uma nova trilha
+    *   **Então** o sistema deve retornar erro com código e mensagem padrão
+
+### US04: Monitoramento e Relatórios
+*   **Cenário:** Processamento de inatividade
+    *   **Dado** que o status do aluno é "Active" e não há progresso há 30 dias
+    *   **Quando** o job de verificação diária for executado
+    *   **Então** o status do aluno na trilha deve ser atualizado para "Suspended"
+
+### US05: Segurança
+*   **Cenário:** Bloqueio por tentativas inválidas
+    *   **Dado** que o usuário errou a senha 2 vezes
+    *   **Quando** o usuário tentar logar novamente e falhar
+    *   **Então** o sistema deve bloquear o acesso à conta e retornar erro padrão

@@ -1,12 +1,3 @@
-"""
-main.py
-
-Implementação baseada em CrewAI de um pipeline sequencial de 3 agentes.
-Este código utiliza a API do Google Gemini (gemini-3.1-flash-lite) 
-para extrair, auditar e refatorar User Stories a partir de texto bruto.
-As personas dos agentes são carregadas dinamicamente do arquivo agents.md.
-"""
-
 import os
 import logging
 from dotenv import load_dotenv
@@ -18,9 +9,6 @@ logger = logging.getLogger("ai_pipeline")
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 def ler_personas_do_md(caminho_arquivo: str) -> dict:
-    """
-    Lê o arquivo agents.md e extrai o Role, Goal e Backstory de cada agente.
-    """
     if not os.path.exists(caminho_arquivo):
         logger.error(f"Arquivo de personas não encontrado: {caminho_arquivo}")
         raise SystemExit(1)
@@ -31,7 +19,6 @@ def ler_personas_do_md(caminho_arquivo: str) -> dict:
     with open(caminho_arquivo, "r", encoding="utf-8") as file:
         for line in file:
             line = line.strip()
-            # Identifica qual agente estamos lendo
             if line.startswith("## Agent 1"):
                 current_agent = "extractor"
                 agents_data[current_agent] = {}
@@ -41,8 +28,6 @@ def ler_personas_do_md(caminho_arquivo: str) -> dict:
             elif line.startswith("## Agent 3"):
                 current_agent = "refactorer"
                 agents_data[current_agent] = {}
-            
-            # Extrai os dados se já estivermos dentro do bloco de um agente
             elif current_agent and line.startswith("**Role:**"):
                 agents_data[current_agent]["role"] = line.replace("**Role:**", "").strip()
             elif current_agent and line.startswith("**Goal:**"):
@@ -50,8 +35,9 @@ def ler_personas_do_md(caminho_arquivo: str) -> dict:
             elif current_agent and line.startswith("**Backstory:**"):
                 agents_data[current_agent]["backstory"] = line.replace("**Backstory:**", "").strip()
 
+    # Adicionamos um papel genérico para o Planner, que pode ser o próprio Extractor assumindo outra postura, 
+    # ou podemos instanciar com base na role do Extractor.
     return agents_data
-
 
 def run_crewai_pipeline() -> None:
     api_key = os.getenv("GOOGLE_API_KEY")
@@ -59,11 +45,8 @@ def run_crewai_pipeline() -> None:
         logger.error("GOOGLE_API_KEY is not set in the environment; see .env.example")
         raise SystemExit(1)
 
-    # Carrega as configurações dos agentes do arquivo Markdown
     caminho_agents_md = "agents.md"
     personas = ler_personas_do_md(caminho_agents_md)
-
-    # Caminho fixo para o arquivo de transcrição utilizado pelo Extractor e Critic
     transcript_path = r"transcript.txt"
     
     if not os.path.exists(transcript_path):
@@ -76,7 +59,7 @@ def run_crewai_pipeline() -> None:
     modelo_llm = "gemini/gemini-3.1-flash-lite"
 
     # ==========================================
-    # 1. Criação dos Agentes dinamicamente
+    # 1. Criação dos Agentes
     # ==========================================
     extractor_agent = Agent(
         role=personas["extractor"]["role"],
@@ -106,41 +89,52 @@ def run_crewai_pipeline() -> None:
     )
 
     # ==========================================
-    # 2. Criação das Tasks
+    # 2. Criação das Tasks: Abordagem Genérica de Chunking Funcional
     # ==========================================
-    task1 = Task(
+    
+    # Task 1: O Extractor agora é orientado a quebrar mentalmente o documento, 
+    # independentemente de ele ter 10 módulos ou 50 itens de lista.
+    task_extract_all = Task(
         description=(
-            f"Leia o texto bruto abaixo e gere as User Stories e cenários TDD.\n\n"
+            f"Leia o texto bruto abaixo e extraia TODAS as regras de negócio, requisitos funcionais "
+            f"e não-funcionais (sistemas, arquitetura, restrições).\n\n"
             f"Texto original:\n{input_text}\n\n"
-            f"IMPORTANTE: Entregue APENAS o código/texto Markdown. Nenhuma palavra de saudação."
+            f"ESTRATÉGIA OBRIGATÓRIA (Evite perder dados):\n"
+            f"1. Mapeie mentalmente todas as seções e listas do documento.\n"
+            f"2. Para cada bloco lógico identificado, extraia minuciosamente os requisitos.\n"
+            f"3. Se houver listas numeradas ou com letras (ex: a, b, c), você DEVE converter CADA item "
+            f"individualmente em um requisito técnico ou regra de negócio.\n"
+            f"Gere o resultado em User Stories e cenários TDD/BDD utilizando puramente Markdown."
         ),
-        expected_output="Documento puro em Markdown contendo exclusivamente User Stories e cenários.",
+        expected_output="Documento Markdown detalhado contendo todos os requisitos e user stories, garantindo que listas longas não sejam resumidas.",
         agent=extractor_agent,
-        output_file="1_user_stories_brutas.md"
+        output_file="1_user_stories_completas.md"
     )
 
-    task2 = Task(
+    task_critic = Task(
         description=(
-            f"Audite a saída gerada pela Task 1 comparando-a estritamente com o Texto original abaixo:\n\n"
+            f"Audite o documento gerado comparando-o estritamente com o Texto original abaixo:\n\n"
             f"Texto original:\n{input_text}\n\n"
-            f"Para CADA User Story ou Cenário, atribua uma nota de 0 a 10. "
-            f"Se a nota for menor que 7, escreva uma instrução clara para o próximo agente usando as categorias OBRIGATÓRIAS: "
-            f"[Descartar alucinação], [Melhorar clareza], ou [Adicionar feature]."
+            f"Para CADA User Story, Cenário ou Requisito Técnico, atribua uma nota de 0 a 5 conforme as regras da sua persona.\n"
+            f"Se a nota for menor que 3, escreva uma instrução clara usando as categorias: "
+            f"[Descartar alucinação], [Melhorar clareza], ou [Adicionar feature].\n"
+            f"ATENÇÃO ESPECIAL: Verifique meticulosamente se ALGUM item de lista do texto original foi ignorado ou agrupado indevidamente no documento gerado. Se sim, use [Adicionar feature]."
         ),
         expected_output="Relatório de auditoria estruturado indicando notas e apontamentos de correção categorizados.",
         agent=critic_agent,
+        context=[task_extract_all],
         output_file="2_relatorio_critica.md"
     )
 
-    task3 = Task(
+    task_refactor = Task(
         description=(
-            "Reescreva o documento inicial da Task 1 aplicando rigorosamente as diretrizes categorizadas do relatório da Task 2. "
-            "Entregue o documento final de requisitos.\n"
+            "Reescreva o documento de requisitos aplicando rigorosamente as diretrizes categorizadas do relatório da crítica.\n"
+            "Mantenha uma separação lógica entre Requisitos Funcionais e Requisitos Não-Funcionais/Técnicos.\n"
             "IMPORTANTE: Entregue APENAS o código/texto Markdown final. Nenhuma palavra de saudação."
         ),
-        expected_output="Documento final de requisitos em Markdown, puramente técnico e livre de falas paralelas.",
+        expected_output="Documento final de requisitos em Markdown, puramente técnico e exaustivo.",
         agent=refactorer_agent,
-        context=[task1, task2],
+        context=[task_extract_all, task_critic],
         output_file="3_user_stories_finais.md"
     )
 
@@ -149,12 +143,12 @@ def run_crewai_pipeline() -> None:
     # ==========================================
     crew = Crew(
         agents=[extractor_agent, critic_agent, refactorer_agent],
-        tasks=[task1, task2, task3],
+        tasks=[task_extract_all, task_critic, task_refactor],
         process=Process.sequential,
         verbose=True
     )
     
-    logger.info("Iniciando o pipeline do CrewAI...")
+    logger.info("Iniciando o pipeline do CrewAI com estratégia genérica...")
     crew.kickoff()
     logger.info("Processo finalizado com sucesso! Verifique os arquivos Markdown gerados.")
 
