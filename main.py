@@ -129,7 +129,10 @@ def run_crewai_pipeline() -> None:
     task_refactor = Task(
         description=(
             "Reescreva o documento de requisitos aplicando rigorosamente as diretrizes categorizadas do relatório da crítica.\n"
-            "Mantenha uma separação lógica entre Requisitos Funcionais e Requisitos Não-Funcionais/Técnicos.\n"
+            "Mantenha uma separação lógica entre Requisitos Funcionais e Requisitos Não-Funcionais/Técnicos.\n\n"
+            "FONTE PRIMÁRIA DE VERDADE — use este documento original para validar cada sugestão do QA "
+            "antes de aplicá-la. Se uma sugestão do QA contradizer ou extrapolar o original, ignore-a:\n\n"
+            f"Documento original:\n{input_text}\n\n"
             "IMPORTANTE: Entregue APENAS o código/texto Markdown final. Nenhuma palavra de saudação."
         ),
         expected_output="Documento final de requisitos em Markdown, puramente técnico e exaustivo.",
