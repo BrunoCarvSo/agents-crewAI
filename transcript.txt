@@ -1,27 +1,28 @@
-Receita de Bolo de Cenoura com Cobertura de Chocolate
+Bloco de Notas do Cliente: "O que o sistema precisa fazer"
+"Gente, nosso brechó não é uma loja de shopping tradicional. O fluxo aqui é uma loucura e tudo é muito dinâmico. Para o sistema funcionar de verdade, ele precisa rodar do jeito que eu faço no dia a dia. Olha só:
 
-Ingredientes da Massa:
-- 3 cenouras médias (descascadas e picadas)
-- 4 ovos
-- 1 xícara (chá) de óleo
-- 2 xícaras (chá) de açúcar
-- 2 xícaras e meia (chá) de farinha de trigo
-- 1 colher (sopa) de fermento em pó
+1. Cadastro de peças (que são sempre únicas)
+"Aqui não tem caixa fechada com 50 camisetas iguais. Cada roupa que entra é única. Eu preciso cadastrar peça por peça, colocar o tamanho dela e o estado de conservação (se tá novinha com etiqueta, se é vintage, ou se tá 'gentilmente usada'). E o sistema tem que gerar uma etiquetinha com código de barras próprio pra cada uma delas, pra eu colar na etiqueta de preço."
 
-Ingredientes da Cobertura:
-- 1 colher (sopa) de manteiga
-- 3 colheres (sopa) de chocolate em pó
-- 1 xícara (chá) de açúcar
-- 1 xícara (chá) de leite
+2. Divisão do dinheiro com as donas das roupas (Consignação)
+"A maior parte do meu estoque vem de desapego de clientes. Funciona assim: a pessoa deixa a roupa aqui, eu vendo e divido o valor com ela (tipo 40% pra ela e 60% pro brechó). O sistema precisa vincular a peça à dona original e, assim que vender no caixa, já calcular e separar a comissão dela automaticamente. Se eu tiver que fazer essa conta na caneta no fim do mês, eu fico louca!"
 
-Modo de Preparo da Massa:
-1. Em um liquidificador, adicione as cenouras, os ovos e o óleo. Bata até obter uma mistura homogênea.
-2. Despeje a mistura em uma tigela e acrescente o açúcar e a farinha de trigo peneirada. Misture bem.
-3. Por último, adicione o fermento e misture delicadamente com uma colher.
-4. Despeje a massa em uma fôrma untada e enfarinhada.
-5. Leve ao forno preaquecido a 180°C por aproximadamente 40 minutos.
+3. Aceitar "Crédito de Troca" no caixa
+"No caixa, o bicho pega. O cliente passa a roupa no leitor e o sistema calcula. Mas tem um detalhe: muita gente traz desapegos, eu avalio, e em vez de pagar em dinheiro, dou um 'crédito de troca'. O sistema tem que aceitar esse crédito como forma de pagamento na tela do caixa. O cliente pode pagar, por exemplo, R$ 50,00 com o crédito dele e o resto no Pix."
 
-Modo de Preparo da Cobertura:
-1. Em uma panela, misture a manteiga, o chocolate em pó, o açúcar e o leite.
-2. Leve ao fogo médio e mexa sem parar até começar a ferver e engrossar.
-3. Despeje a cobertura ainda quente sobre o bolo já assado e faça furos com um garfo para o chocolate penetrar.
+4. Desconto automático para roupa encalhada
+"Meu espaço físico é pequeno, não posso ter roupa mofando na arara. Se uma peça está cadastrada há mais de 45 dias e não vendeu, eu quero que o sistema me avise ou já aplique um desconto automático (tipo 20% de desconto) na hora de passar no caixa, pra queimar o estoque antigo e abrir espaço para coisas novas."
+
+5. Mandar o recibo direto pelo WhatsApp
+"Nosso público é super ligado em sustentabilidade e ecologia. Eu odeio aquela impressora térmica gastando papel de cupom à toa. Quero que, ao fechar a venda, o sistema dê a opção de mandar o comprovante bonitinho direto pro WhatsApp ou e-mail do cliente. Além de economizar papel, eu ainda fico com o contato dele para divulgar novidades depois."
+
+6. Busca rápida para a vendedora no balcão
+"A cliente entra na loja e pergunta: 'Você tem vestido preto tamanho G?'. Como o estoque muda todo santo dia, a vendedora não tem como decorar. Ela precisa digitar isso no sistema e ele tem que dizer na hora se tem algum disponível e, de preferência, em qual arara ou setor da loja ele foi colocado."
+
+7. Saber o que está dando lucro de verdade
+"Preciso de uma tela simples de relatório que me diga: 'Olha, o que mais tá vendendo este mês é casaco de frio' ou 'A fornecedora Fulana é a que traz as roupas que vendem mais rápido'. Quero ver onde estou ganhando dinheiro de verdade para saber quais tipos de roupas devo aceitar mais na curadoria."
+
+8. Histórico completo da roupa (para não ter briga)
+"Quero conseguir puxar a 'capivara' de qualquer peça. Preciso ver o dia em que ela entrou na loja, quem foi o funcionário que avaliou, se o preço mudou ao longo do tempo e o dia exato em que ela foi vendida. Isso me dá segurança se alguma cliente vier reclamar ou se sumir alguma peça da arara."
+
+Basicamente é isso! Conseguindo resolver essas burocracias sem travar o caixa, o sistema vai salvar a minha vida."

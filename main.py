@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import logging
 from dotenv import load_dotenv
 from crewai import Agent, Task, Crew, Process
@@ -8,6 +9,24 @@ load_dotenv()
 
 logger = logging.getLogger("ai_pipeline")
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+def ler_config_llm(caminho_arquivo: str = "llm_config.json") -> tuple[str, str]:
+    """Lê o JSON genérico e retorna o modelo e a variável de ambiente da API Key."""
+    if not os.path.exists(caminho_arquivo):
+        logger.error(f"Arquivo de configuração LLM não encontrado: {caminho_arquivo}")
+        raise SystemExit(1)
+    
+    with open(caminho_arquivo, "r", encoding="utf-8") as f:
+        config = json.load(f)
+        
+    modelo = config.get("model")
+    env_var = config.get("api_key_env_var")
+    
+    if not modelo or not env_var:
+         logger.error("O arquivo JSON deve conter as chaves 'model' e 'api_key_env_var'.")
+         raise SystemExit(1)
+         
+    return modelo, env_var
 
 def ler_personas_do_md(caminho_arquivo: str) -> dict:
     if not os.path.exists(caminho_arquivo):
@@ -54,10 +73,16 @@ def ler_personas_do_md(caminho_arquivo: str) -> dict:
     return agents_data
 
 def run_crewai_pipeline() -> None:
-    api_key = os.getenv("GOOGLE_API_KEY")
+    # Carrega as configurações dinâmicas da LLM
+    modelo_llm, env_var_necessaria = ler_config_llm()
+    
+    # Valida se a chave correspondente existe no ambiente (.env)
+    api_key = os.getenv(env_var_necessaria)
     if not api_key:
-        logger.error("GOOGLE_API_KEY is not set in the environment; see .env.example")
+        logger.error(f"A variável '{env_var_necessaria}' não foi encontrada no .env. Configure suas credenciais.")
         raise SystemExit(1)
+
+    logger.info(f"Iniciando pipeline utilizando a LLM: {modelo_llm}")
 
     caminho_agents_md = "agents.md"
     personas = ler_personas_do_md(caminho_agents_md)
@@ -69,8 +94,6 @@ def run_crewai_pipeline() -> None:
 
     with open(transcript_path, "r", encoding="utf-8") as f:
         input_text = f.read()
-
-    modelo_llm = "gemini/gemini-3.1-flash-lite"
 
     # ==========================================
     # 1. Criação dos Agentes
@@ -117,7 +140,7 @@ def run_crewai_pipeline() -> None:
         ),
         expected_output="Documento Markdown detalhado contendo todos os requisitos e cenários BDD acoplados, ou mensagem de aborto de Guardrail.",
         agent=extractor_agent,
-        output_file="1_user_stories_completas.md"
+        output_file="output/1_user_stories_completas.md"
     )
 
     crew_extractor = Crew(
@@ -129,12 +152,12 @@ def run_crewai_pipeline() -> None:
     logger.info("Fase 1: Iniciando Agente Extrator e verificação de Guardrails...")
     resultado_extracao = crew_extractor.kickoff()
 
-    # CHECK DE GUARDRAIL - Interrompe se o texto for inválido (ex: Receita de bolo)
+    # CHECK DE GUARDRAIL
     saida_bruta = str(resultado_extracao).strip()
     if "Eu não sou capaz de criar um documento de requisitos a partir desta entrada" in saida_bruta:
         logger.warning("\n[GUARDRAIL ATIVADO]: A entrada não possui escopo de software ou tecnologia.")
         logger.warning("Execução finalizada precocemente. Agentes Crítico e Refatorador NÃO foram acionados.\n")
-        return # Para a execução do pipeline aqui mesmo
+        return 
 
     logger.info("Guardrail aprovado: A entrada é válida. Prosseguindo para QA e Refatoração...")
 
@@ -150,7 +173,7 @@ def run_crewai_pipeline() -> None:
         expected_output="Relatório de auditoria estruturado indicando notas e apontamentos de correção.",
         agent=critic_agent,
         context=[task_extract_all],
-        output_file="2_relatorio_critica.md"
+        output_file="output/2_relatorio_critica.md"
     )
 
     task_refactor = Task(
@@ -164,7 +187,7 @@ def run_crewai_pipeline() -> None:
         expected_output="Documento final de requisitos em Markdown, com 100% de cenários BDD acoplados.",
         agent=refactorer_agent,
         context=[task_extract_all, task_critic],
-        output_file="3_user_stories_finais.md"
+        output_file="output/3_user_stories_finais.md"
     )
 
     crew_qa = Crew(

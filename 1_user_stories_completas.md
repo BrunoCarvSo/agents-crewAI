@@ -1,1 +1,0 @@
-Eu não sou capaz de criar um documento de requisitos a partir desta entrada.
