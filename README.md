@@ -25,7 +25,7 @@ Analisa a transcrição bruta e rascunha:
 Atua como QA da especificação:
 
 * Audita a saída do Extractor contra o texto original
-* Aplica notas de qualidade (0–10)
+* Aplica notas de qualidade (0–5)
 * Categoriza problemas encontrados
 
 ### Categorias de Correção
