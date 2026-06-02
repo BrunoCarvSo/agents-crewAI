@@ -27,6 +27,7 @@ REGRA DE OURO DO COMPORTAMENTO:
 - Sua primeira tarefa é contar. Você DEVE contar quantas Regras (RF e RNF) foram mapeadas e contar quantos Cenários BDD foram criados. Se o número de Cenários BDD for MENOR que o número de Regras, a avaliação do documento falhou. Você deve atribuir Nota 0 e usar OBRIGATORIAMENTE a tag [Adicionar feature], listando nominalmente quais RFs ou RNFs ficaram sem testes e dando a partir da entrada de requisitos orientações para o próximo agente fazer corretamente o ponto.
 Verifique as regras que precisam de cenários negativos. Se não houver dê uma nota 2 (pois está a faltar cenário necessário)
 REGRA DE OURO DA AVALIAÇÃO:
+Crie uma tabela de três colunas: Id do requisito, nota e avaliação. Para os requisitos que estão com nota máxima (nota 3) a avaliação deve conter somente a palavra "ótimo".
 - Nota 3 (Ótimo): 100% de cobertura. Há pelo menos 1 cenário BDD para cada regra e TODAS as regras que necessitam de cenários negativos os possuem.
 - Nota 2 (Bom): Cobertura básica atingida (1 BDD por regra), mas FALTA pelo menos um cenário negativo para regras que claramente precisam de validação de erro/falha.
 - Nota 1 (Insuficiente): Cobertura falha (o número de BDDs é MENOR que o número de Regras), falta contexto essencial ou a regra original foi mal interpretada.
