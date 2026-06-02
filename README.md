@@ -1,6 +1,8 @@
-# Pipeline de Engenharia de Requisitos com IA (CrewAI + Gemini)
+# Pipeline de Engenharia de Requisitos com IA (CrewAI + Multi-LLM)
 
-Este projeto implementa uma ferramenta de automação focada no refinamento ágil de requisitos. Através de um pipeline sequencial de **3 agentes de Inteligência Artificial** (orquestrados via CrewAI e alimentados pelo Google Gemini), o sistema processa transcrições brutas de reuniões (*briefings*) e entrega **User Stories auditadas e cenários BDD/TDD**, prontos para a esteira de desenvolvimento.
+Este projeto implementa uma ferramenta de automação focada no refinamento ágil de requisitos. Através de um pipeline sequencial de **3 agentes de Inteligência Artificial** orquestrados via CrewAI, o sistema processa transcrições brutas de reuniões (*briefings*) e entrega **User Stories auditadas e cenários BDD/TDD**, prontos para a esteira de desenvolvimento.
+
+O projeto foi refatorado para ser **Agnóstico de Provedor**, permitindo a utilização de diversas LLMs (Google Gemini, OpenAI GPT, Anthropic Claude, Grok, etc.) de forma simples e direta, sem necessidade de alterar o código-fonte.
 
 ---
 
@@ -23,7 +25,7 @@ Analisa a transcrição bruta e rascunha:
 Atua como QA da especificação:
 
 * Audita a saída do Extractor contra o texto original
-* Aplica notas de qualidade (0–10)
+* Aplica notas de qualidade (0–5)
 * Categoriza problemas encontrados
 
 ### Categorias de Correção
@@ -60,6 +62,7 @@ A estrutura esperada do projeto é:
 │
 ├── .env                     # Variáveis de ambiente (criado pelo usuário)
 ├── .env.example             # Template das variáveis de ambiente
+├── llm_config.json          # Configuração do modelo e provedor da LLM
 ├── agents.md                # Personas e prompts dos agentes
 ├── main.py                  # Orquestrador principal do CrewAI
 └── requirements.txt         # Dependências Python
@@ -129,33 +132,50 @@ pip install -r requirements.txt
 
 # ⚙️ 2. Configurações Necessárias
 
-Antes da execução, configure:
-
-* API Key
-* Personas dos agentes
-* Arquivo de entrada
+Para executar o projeto com suas próprias credenciais, siga as etapas abaixo.
 
 ---
 
-## 2.1 Configurando a API Key (`.env`)
+## 2.1 Cadastrando sua Chave de API (`.env`)
 
-O projeto utiliza `python-dotenv` para carregar variáveis de ambiente de forma segura.
+O projeto carrega credenciais de forma segura através de variáveis de ambiente.
 
-### Copie o arquivo de exemplo
-
-```bash
-cp .env.example .env
-```
-
-### Configure sua chave da API do Google Gemini
-
-```env
-GOOGLE_API_KEY="sua_chave_api_aqui"
-```
+1. Copie o template:
+   ```bash
+   cp .env.example .env
+   ```
+2. Abra o arquivo `.env` gerado e defina uma variável com a sua chave de API. Por exemplo:
+   ```env
+   OPENAI_API_KEY="sk-proj-sua-chave-aqui..."
+   ```
 
 ---
 
-## 2.2 Configurando as Personas (`agents.md`)
+## 2.2 Escolhendo a IA a ser utilizada (`llm_config.json`)
+
+Abra o arquivo `llm_config.json` na raiz do projeto. 
+Você só precisa informar duas coisas: a string do modelo (no padrão do provedor) e o nome da variável de ambiente onde você colocou a chave no passo anterior.
+
+**Exemplo configurado para OpenAI:**
+```json
+{
+  "model": "openai/gpt-4o-mini",
+  "api_key_env_var": "OPENAI_API_KEY"
+}
+```
+
+**Exemplo configurado para Google Gemini:**
+```json
+{
+  "model": "gemini/gemini-1.5-flash",
+  "api_key_env_var": "GOOGLE_API_KEY"
+}
+```
+*A partir disso, o sistema fará a ponte entre o modelo escolhido e a chave salva no seu `.env` automaticamente.*
+
+---
+
+## 2.3 Configurando as Personas (`agents.md`)
 
 O arquivo `agents.md` é carregado dinamicamente pelo `main.py`.
 
@@ -180,7 +200,7 @@ A estrutura deve seguir rigorosamente este formato:
 
 ---
 
-## 2.3 Configurando a Entrada (`Agents/transcript.txt`)
+## 2.4 Configurando a Entrada (`Agents/transcript.txt`)
 
 Crie a pasta `Agents/` na raiz do projeto e adicione:
 
@@ -203,7 +223,7 @@ Com:
 
 * `.venv` ativado
 * Dependências instaladas
-* `.env` configurado
+* Configurações de LLM definidas (`llm_config.json` e `.env`)
 * `transcript.txt` preenchido
 
 Execute:
@@ -218,8 +238,8 @@ python main.py
 
 Durante a execução, o terminal exibirá logs detalhados:
 
-* Inicialização dos agentes
-* Execução das Tasks
+* Inicialização dos agentes e validação da LLM
+* Execução das Tasks e Guardrails
 * Auditoria de qualidade
 * Refatoração das User Stories
 * Geração dos artefatos finais
@@ -232,7 +252,7 @@ Ao final da execução, o pipeline produzirá três arquivos Markdown na raiz do
 
 ---
 
-## 📄 1_user_stories_brutas.md
+## 📄 1_user_stories_completas.md
 
 Primeira extração gerada pelo Agente 1.
 
@@ -272,13 +292,13 @@ Contém:
 
 # 🧠 Tecnologias Utilizadas
 
-| Tecnologia    | Finalidade                             |
-| ------------- | -------------------------------------- |
-| Python        | Linguagem principal                    |
-| CrewAI        | Orquestração multiagente               |
-| Google Gemini | Processamento de linguagem natural     |
-| python-dotenv | Gerenciamento de variáveis de ambiente |
-| Markdown      | Persistência dos artefatos gerados     |
+| Tecnologia    | Finalidade                               |
+| ------------- | ---------------------------------------- |
+| Python        | Linguagem principal                      |
+| CrewAI        | Orquestração multiagente                 |
+| LiteLLM       | Abstração para suporte a múltiplos provedores de IA |
+| python-dotenv | Gerenciamento de variáveis de ambiente   |
+| Markdown      | Persistência dos artefatos gerados       |
 
 ---
 
