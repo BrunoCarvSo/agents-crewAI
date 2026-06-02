@@ -1,37 +1,42 @@
-### Relatório de Auditoria de QA
+**RELATÓRIO DE AUDITORIA DE QA - SISTEMA DE GESTÃO DE BRECHÓ**
 
-**Auditor:** QA Lead & System Auditor
-**Objeto de Auditoria:** Mapeamento de Regras vs. Cenários BDD
+**Status da Auditoria:** REPROVADO
+**Nota Geral:** 2 (Insuficiente)
 
 ---
 
-#### 1. Contagem Estrutural
+### 1. Contagem de Conformidade
 *   **Total de Regras Mapeadas (RF):** 8
-*   **Total de Cenários BDD Criados:** 8
-*   **Status de Cobertura:** 1:1 (Atingiu o patamar mínimo).
+*   **Total de Cenários BDD:** 8
+*   **Cobertura:** 1:1 (Atende à regra de cardinalidade básica, mas falha gravemente na qualidade técnica e nos cenários negativos obrigatórios).
 
-#### 2. Avaliação por Requisito
+### 2. Parecer de Auditoria
+O documento apresenta uma cobertura estrutural completa (um cenário por regra), porém, **falha na qualidade técnica e na completude lógica**. Não foram previstos cenários negativos ou de exceção, o que é inaceitável para um sistema de gestão comercial e financeira. Sem testes de erro, o TDD é impossível.
 
-| Requisito | Nota | Justificativa |
-| :--- | :---: | :--- |
-| REQ-001 | 3 | Atende, mas falta cenário negativo (ex: tentativa de cadastro sem dados obrigatórios). |
-| REQ-002 | 3 | Atende, mas falta cenário negativo (ex: venda de peça sem fornecedor vinculado). |
-| REQ-003 | 3 | Atende, mas falta cenário negativo (ex: saldo insuficiente para o crédito aplicado). |
-| REQ-004 | 3 | Atende, mas falta cenário negativo (ex: peça com 44 dias não deve ter desconto). |
-| REQ-005 | 3 | Atende, mas falta cenário negativo (ex: falha na conexão/envio do WhatsApp). |
-| REQ-006 | 3 | Atende, mas falta cenário negativo (ex: busca por item inexistente). |
-| REQ-007 | 3 | Atende, mas falta cenário negativo (ex: período sem vendas para relatório). |
-| REQ-008 | 3 | Atende, mas falta cenário negativo (ex: acesso a peça não cadastrada). |
+### 3. Análise Individual por Requisito
+
+| ID | Nota | Avaliação |
+| :--- | :--- | :--- |
+| REQ-001 | 3 | Atende ao básico, mas não prevê erro em cadastro de peça duplicada. |
+| REQ-002 | 2 | Ausência de cenário de falha para comissionamento. |
+| REQ-003 | 2 | Falta cenário negativo: Saldo insuficiente no crédito de troca. |
+| REQ-004 | 3 | Funcional, mas falta cenário de peça com 44 dias (limite de borda). |
+| REQ-005 | 3 | Aceitável. |
+| REQ-006 | 2 | Falta cenário de busca sem resultados (feedback ao usuário). |
+| REQ-007 | 3 | Aceitável. |
+| REQ-008 | 2 | Falta cenário para item não encontrado no sistema. |
 
 ---
 
-#### 3. Parecer Final
-**Nota Geral: 3 (Suficiente)**
+### 4. Plano de Ação (Ações Corretivas)
 
-**Apontamentos:**
-O documento atende ao mínimo necessário para o desenvolvimento dos fluxos "felizes" (Happy Path). No entanto, a qualidade técnica é limitada pela ausência total de cenários negativos. Em um sistema de ponto de venda (PDV) onde o erro humano e falhas de dados são comuns, a ausência de tratamento de exceções (Cenários Negativos/Alternativos) torna o sistema vulnerável.
+**[Adicionar feature]** - Necessária a inclusão de cenários negativos e de borda para garantir a robustez do sistema.
 
-**Obrigatoriedade de Correção:**
-[Adicionar feature]: Para todos os itens listados acima (REQ-001 a REQ-008), o agente deve adicionar um segundo cenário BDD contendo a premissa de erro ou validação de inconsistência (Cenários Negativos).
+1.  **REQ-002:** Adicionar cenário: "Dado que o fornecedor está inativo, quando a venda ocorrer, então o sistema deve impedir o processamento e emitir alerta de inconsistência".
+2.  **REQ-003:** Adicionar cenário: "Dado que o saldo do 'Crédito de Troca' é inferior ao valor da compra, quando o sistema processar, então deve aplicar o saldo total e solicitar o complemento via outro meio de pagamento".
+3.  **REQ-004:** Adicionar teste de borda: "Dado que uma peça foi cadastrada há exatamente 45 dias, então o sistema deve validar se o desconto de 20% é aplicado corretamente (análise de limite)".
+4.  **REQ-006:** Adicionar cenário: "Dado que a busca não retorna itens, então o sistema deve informar claramente que não há produtos com aquele filtro, evitando erro de sistema".
+5.  **REQ-008:** Adicionar cenário: "Dado que o código de barras é inválido ou inexistente, então o sistema deve retornar a mensagem: 'Item não localizado no inventário'".
 
-*   **Exemplo de instrução para o próximo agente:** Para o REQ-003, adicione: "Dado que o cliente tenta utilizar um crédito de R$ 100,00 sendo que ele possui apenas R$ 40,00, quando o sistema processa, então o sistema deve negar a transação e solicitar ajuste do valor." Aplique esta lógica de *fail-fast* para todos os demais requisitos.
+**Instruções para o próximo agente:** 
+Refaça o artefato adicionando os fluxos alternativos (caminho infeliz). Nenhum requisito de negócio em sistemas financeiros (como o de consignação e créditos de troca) deve ser documentado apenas com o "caminho feliz". Utilize a técnica de partição de equivalência e análise de valor limite para os campos de data (45 dias) e valores (cálculo de 40/60).

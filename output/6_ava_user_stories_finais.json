@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "avaliador_versao": "1.0",
+    "total_itens_agente3": 8
+  },
+  "taxa_correcao": {
+    "total_pontos_qa": 5,
+    "pontos_validos": 5,
+    "pontos_invalidos": 0,
+    "validos_aplicados_corretamente": 5,
+    "validos_aplicados_parcialmente": 0,
+    "validos_nao_aplicados": 0,
+    "invalidos_corretamente_rejeitados": 0,
+    "invalidos_incorretamente_aceitos": 0,
+    "regressoes": 0,
+    "score": 1.0,
+    "evidencias": [
+      {
+        "ponto_qa": "REQ-002: Impedir venda com fornecedor inativo",
+        "classificacao": "valido",
+        "tratamento_agente3": "aplicado",
+        "veredito": "correto",
+        "citacao_original": "O sistema precisa vincular a peça à dona original",
+        "citacao_agente3": "Dado que o fornecedor está inativo no sistema / Quando a venda da peça consignada ocorrer / Então o sistema deve impedir o processamento"
+      },
+      {
+        "ponto_qa": "REQ-003: Saldo insuficiente para pagamento",
+        "classificacao": "valido",
+        "tratamento_agente3": "aplicado",
+        "veredito": "correto",
+        "citacao_original": "O cliente pode pagar, por exemplo, R$ 50,00 com o crédito dele e o resto no Pix.",
+        "citacao_agente3": "Dado que o saldo do 'Crédito de Troca' é inferior ao valor da compra / Então o sistema deve aplicar o saldo total disponível e solicitar obrigatoriamente o complemento"
+      },
+      {
+        "ponto_qa": "REQ-004: Teste de borda 45 dias",
+        "classificacao": "valido",
+        "tratamento_agente3": "aplicado",
+        "veredito": "correto",
+        "citacao_original": "Se uma peça está cadastrada há mais de 45 dias",
+        "citacao_agente3": "Dado que uma peça foi cadastrada há exatamente 45 dias / Então o sistema não deve aplicar o desconto de 20%"
+      },
+      {
+        "ponto_qa": "REQ-006: Busca sem resultados",
+        "classificacao": "valido",
+        "tratamento_agente3": "aplicado",
+        "veredito": "correto",
+        "citacao_original": "Ela precisa digitar isso no sistema e ele tem que dizer na hora se tem algum disponível",
+        "citacao_agente3": "Dado que a busca não retorna itens com os filtros aplicados / Então o sistema deve informar claramente que não há produtos"
+      },
+      {
+        "ponto_qa": "REQ-008: Código inexistente",
+        "classificacao": "valido",
+        "tratamento_agente3": "aplicado",
+        "veredito": "correto",
+        "citacao_original": "Quero conseguir puxar a 'capivara' de qualquer peça",
+        "citacao_agente3": "Dado que o código de barras informado é inválido ou inexistente / Então o sistema deve retornar a mensagem: 'Item não localizado no inventário'"
+      }
+    ]
+  },
+  "fidelidade_original": {
+    "requisitos_originais_aplicaveis": 8,
+    "cobertos_corretamente": 8,
+    "score": 1.0,
+    "definicoes_verificadas": [
+      {
+        "termo": "Crédito de Troca",
+        "status": "exata",
+        "citacao_original": "dou um 'crédito de troca'. O sistema tem que aceitar esse crédito",
+        "citacao_agente3": "O sistema deve aceitar \"Crédito de Troca\" como forma de pagamento"
+      },
+      {
+        "termo": "capivara",
+        "status": "exata",
+        "citacao_original": "puxar a 'capivara' de qualquer peça",
+        "citacao_agente3": "solicitar o histórico completo (\"capivara\")"
+      }
+    ]
+  },
+  "alucinacoes": {
+    "alucinou": false,
+    "quantidade": 0,
+    "taxa": 0.0,
+    "score": 1.0,
+    "itens": []
+  },
+  "cobertura_features": {
+    "features_esperadas": 8,
+    "implementadas_corretamente": 8,
+    "percentual": 1.0,
+    "faltantes": []
+  },
+  "classificacao_processo_vs_software": {
+    "itens_processo_corretos": 0,
+    "itens_processo_incorretos": 0,
+    "detalhe": []
+  },
+  "conformidade_formato": {
+    "segue_padrao_bdd": true,
+    "apenas_documento_sem_comentarios": true,
+    "violacoes": [],
+    "score": 1.0
+  },
+  "veredito": {
+    "score_geral": 1.0,
+    "pesos": {
+      "fidelidade": 0.3,
+      "taxa_correcao": 0.25,
+      "alucinacao": 0.2,
+      "cobertura_features": 0.15,
+      "formato": 0.1
+    },
+    "gates_acionados": [],
+    "status": "APROVADO",
+    "top_problemas": [],
+    "acoes_recomendadas": []
+  }
+}
