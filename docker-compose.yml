@@ -1,0 +1,12 @@
+services:
+  app:
+    build: .
+    container_name: agents-crewai
+    env_file:
+      - .env
+    volumes:
+      - ./transcript.txt:/app/transcript.txt:ro
+      - ./agents.md:/app/agents.md:ro
+      - ./llm_config.json:/app/llm_config.json:ro
+      - ./output:/app/output
+    command: ["python", "main.py"]

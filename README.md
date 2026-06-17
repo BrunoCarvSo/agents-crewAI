@@ -232,6 +232,30 @@ Execute:
 python main.py
 ```
 
+## 3.1 Executar com Docker
+
+Se você quiser isolar o ambiente, use o container.
+
+1. Ajuste o arquivo `.env` com a sua chave de API.
+2. Garanta que `transcript.txt`, `agents.md` e `llm_config.json` estejam na raiz do projeto.
+3. Suba o container:
+
+```bash
+docker compose up --build
+```
+
+Se preferir rodar sem Compose:
+
+```bash
+docker build -t agents-crewai .
+docker run --rm --env-file .env \
+  -v "$PWD/transcript.txt:/app/transcript.txt:ro" \
+  -v "$PWD/agents.md:/app/agents.md:ro" \
+  -v "$PWD/llm_config.json:/app/llm_config.json:ro" \
+  -v "$PWD/output:/app/output" \
+  agents-crewai
+```
+
 ---
 
 ## Fluxo Esperado
