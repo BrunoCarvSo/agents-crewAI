@@ -33,15 +33,10 @@ def ler_personas_do_md(caminho_arquivo: str) -> dict:
         logger.error(f"Arquivo de personas não encontrado: {caminho_arquivo}")
         raise SystemExit(1)
 
-    # Mapeia o cabeçalho do Markdown para a chave interna usada no pipeline.
-    # O Agente 6 é o Avaliador (Evaluator). Cabeçalhos de agentes não mapeados
-    # (ex.: 4 e 5) encerram o bloco anterior sem poluir o backstory do agente
-    # imediatamente acima.
     header_map = {
         "## Agent 1": "extractor",
         "## Agent 2": "critic",
         "## Agent 3": "refactorer",
-        "## Agent 6": "evaluator",
     }
 
     agents_data = {}
@@ -114,11 +109,6 @@ def run_crewai_pipeline() -> None:
     caminho_agents_md = "agents.md"
     personas = ler_personas_do_md(caminho_agents_md)
 
-    # Garante que a persona do Avaliador (Agente 6) foi carregada.
-    if "evaluator" not in personas:
-        logger.error("Persona do Avaliador (## Agent 6) não encontrada em agents.md.")
-        raise SystemExit(1)
-
     transcript_path = r"transcript.txt"
     
     if not os.path.exists(transcript_path):
@@ -153,15 +143,6 @@ def run_crewai_pipeline() -> None:
         role=personas["refactorer"]["role"],
         goal=personas["refactorer"]["goal"],
         backstory=personas["refactorer"]["backstory"],
-        llm=modelo_llm,
-        verbose=True,
-        allow_delegation=False,
-    )
-
-    evaluator_agent = Agent(
-        role=personas["evaluator"]["role"],
-        goal=personas["evaluator"]["goal"],
-        backstory=personas["evaluator"]["backstory"],
         llm=modelo_llm,
         verbose=True,
         allow_delegation=False,
@@ -237,28 +218,6 @@ def run_crewai_pipeline() -> None:
         agent=refactorer_agent,
         context=[task_extract_all, task_critic],
         output_file="output/3_user_stories_finais.md",
-    )
-
-    # FASE 2.1: Avaliação (Agente 6) — recebe o documento original + as saídas
-    # dos Agentes 1 (extração), 2 (crítica) e 3 (refatoração) via `context`.
-    task_evaluate = Task(
-        description=(
-            "Você é o Agente Avaliador (Agente 6). Audite o documento técnico final produzido pelo "
-            "Refactorer (Agente 3) e produza o relatório JSON definido na sua persona, aplicando "
-            "rigorosamente as fórmulas, pesos e regras de gating.\n\n"
-            "Você recebe QUATRO entradas:\n"
-            "ENTRADA 1 — DOCUMENTO ORIGINAL DE REQUISITOS (FONTE PRIMÁRIA DE VERDADE / único árbitro):\n"
-            f"{input_text}\n\n"
-            "ENTRADA 2 — USER STORIES DO AGENTE 1 (Extractor): disponível no contexto (saída da tarefa de extração).\n"
-            "ENTRADA 3 — RELATÓRIO DO QA DO AGENTE 2 (Critic): disponível no contexto (saída da tarefa de crítica).\n"
-            "ENTRADA 4 — DOCUMENTO FINAL DO AGENTE 3 (Refactorer): disponível no contexto (saída da tarefa de refatoração).\n\n"
-            "Sua resposta deve ser EXCLUSIVAMENTE o relatório JSON válido, em português do Brasil, "
-            "sem nenhum texto, preâmbulo ou comentário fora do JSON."
-        ),
-        expected_output="Relatório de avaliação em JSON válido, conforme o schema definido na persona do Avaliador (Agente 6).",
-        agent=evaluator_agent,
-        context=[task_extract_all, task_critic, task_refactor],
-        output_file="output/6_ava_user_stories_finais.json",
     )
 
     crew_qa = Crew(
